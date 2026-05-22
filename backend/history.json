@@ -1,0 +1,10 @@
+[
+    {
+        "id": 1,
+        "query": "hii I am rahul, explain me the concept of natural language processing",
+        "category": "General",
+        "sentiment": "Neutral",
+        "response": "Sorry, we encountered a server error: Error calling model 'gemini-1.5-flash' (NOT_FOUND): 404 NOT_FOUND. {'error': {'code': 404, 'message': 'models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.', 'status': 'NOT_FOUND'}}",
+        "timestamp": "2026-05-23 01:05:45"
+    }
+]

@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intelligent Customer Support Dashboard - LangGraph & Gemini</title>
+    <!-- Google Fonts: Inter and Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons for modern symbols -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation & Controls -->
+        <aside class="sidebar">
+            <div class="logo-container">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-diagram-project"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>SupportAgent</h1>
+                    <span>LANGGRAPH & GEMINI</span>
+                </div>
+            </div>
+
+            <!-- Credentials Card -->
+            <div class="card credential-card">
+                <div class="card-header">
+                    <i class="fa-solid fa-key text-accent"></i>
+                    <h3>Gemini Credentials</h3>
+                </div>
+                <div class="status-indicator-container">
+                    <span id="key-status-dot" class="status-dot status-inactive"></span>
+                    <span id="key-status-text" class="status-text">Key Not Configured</span>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="api-key-input" placeholder="Paste Gemini API Key here...">
+                    <button id="save-key-btn" class="btn btn-primary"><i class="fa-solid fa-save"></i> Save Key</button>
+                </div>
+                <p class="credential-tip">Your API key is saved locally in a <code>.env</code> file in your workspace.</p>
+            </div>
+
+            <!-- Workflow Graph Representation -->
+            <div class="card graph-card">
+                <div class="card-header">
+                    <i class="fa-solid fa-route text-accent"></i>
+                    <h3>LangGraph Workflow</h3>
+                </div>
+                <div class="graph-container">
+                    <!-- Custom Interactive SVG Flow Graph -->
+                    <svg viewBox="0 0 240 380" class="workflow-svg">
+                        <!-- Definitions for arrow markers -->
+                        <defs>
+                            <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 0 L 10 5 L 0 10 z" fill="#475569"/>
+                            </marker>
+                            <marker id="arrow-active" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 0 L 10 5 L 0 10 z" fill="#6366f1"/>
+                            </marker>
+                        </defs>
+
+                        <!-- Connections/Edges -->
+                        <!-- Categorize -> Sentiment -->
+                        <line x1="120" y1="50" x2="120" y2="90" class="edge" id="edge-cat-sent" marker-end="url(#arrow)"/>
+                        
+                        <!-- Sentiment -> Technical -->
+                        <path d="M 120 130 C 120 150, 45 150, 45 185" class="edge" id="edge-sent-tech" marker-end="url(#arrow)"/>
+                        
+                        <!-- Sentiment -> Billing -->
+                        <path d="M 120 130 C 120 155, 95 155, 95 185" class="edge" id="edge-sent-bill" marker-end="url(#arrow)"/>
+                        
+                        <!-- Sentiment -> General -->
+                        <path d="M 120 130 C 120 155, 145 155, 145 185" class="edge" id="edge-sent-gen" marker-end="url(#arrow)"/>
+                        
+                        <!-- Sentiment -> Escalate -->
+                        <path d="M 120 130 C 120 150, 195 150, 195 185" class="edge" id="edge-sent-esc" marker-end="url(#arrow)"/>
+
+                        <!-- Leaf Nodes to END -->
+                        <path d="M 45 225 C 45 260, 120 260, 120 290" class="edge" id="edge-tech-end" marker-end="url(#arrow)"/>
+                        <path d="M 95 225 C 95 250, 120 250, 120 290" class="edge" id="edge-bill-end" marker-end="url(#arrow)"/>
+                        <path d="M 145 225 C 145 250, 120 250, 120 290" class="edge" id="edge-gen-end" marker-end="url(#arrow)"/>
+                        <path d="M 195 225 C 195 260, 120 260, 120 290" class="edge" id="edge-esc-end" marker-end="url(#arrow)"/>
+
+                        <!-- Nodes -->
+                        <!-- Entry Point -->
+                        <g class="node" id="node-categorize" transform="translate(120, 30)">
+                            <rect x="-50" y="-20" width="100" height="40" rx="6"/>
+                            <text dy="5">1. Categorize</text>
+                        </g>
+
+                        <!-- Sentiment Node -->
+                        <g class="node" id="node-analyze_sentiment" transform="translate(120, 110)">
+                            <rect x="-55" y="-20" width="110" height="40" rx="6"/>
+                            <text dy="5">2. Sentiment</text>
+                        </g>
+
+                        <!-- Technical Support Node -->
+                        <g class="node node-leaf" id="node-handle_technical" transform="translate(45, 205)">
+                            <rect x="-22" y="-20" width="44" height="40" rx="6"/>
+                            <text class="node-short-txt" dy="5">Tech</text>
+                        </g>
+
+                        <!-- Billing Support Node -->
+                        <g class="node node-leaf" id="node-handle_billing" transform="translate(95, 205)">
+                            <rect x="-22" y="-20" width="44" height="40" rx="6"/>
+                            <text class="node-short-txt" dy="5">Bill</text>
+                        </g>
+
+                        <!-- General Support Node -->
+                        <g class="node node-leaf" id="node-handle_general" transform="translate(145, 205)">
+                            <rect x="-22" y="-20" width="44" height="40" rx="6"/>
+                            <text class="node-short-txt" dy="5">Gen</text>
+                        </g>
+
+                        <!-- Escalate Node -->
+                        <g class="node node-leaf node-escalate" id="node-escalate" transform="translate(195, 205)">
+                            <rect x="-22" y="-20" width="44" height="40" rx="6"/>
+                            <text class="node-short-txt" dy="5">Esc</text>
+                        </g>
+
+                        <!-- End Node -->
+                        <g class="node node-end" id="node-end" transform="translate(120, 310)">
+                            <circle r="18"/>
+                            <text dy="4">END</text>
+                        </g>
+                    </svg>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Dashboard Area -->
+        <main class="main-content">
+            <!-- App Header -->
+            <header class="app-header">
+                <div class="header-title">
+                    <h2>Customer Support Agent</h2>
+                    <p>Live visual workspace mapping natural language processing to graph workflows.</p>
+                </div>
+                <div class="system-status-indicator">
+                    <span class="pulse-indicator"></span>
+                    <span class="status-label">System Active</span>
+                </div>
+            </header>
+
+            <div class="dashboard-grid">
+                <!-- Chat Window Card -->
+                <section class="card chat-card">
+                    <div class="card-header border-bottom">
+                        <div class="chat-header-info">
+                            <i class="fa-solid fa-comments text-accent"></i>
+                            <h3>Agent Interactive Workspace</h3>
+                        </div>
+                        <button id="clear-chat-btn" class="btn btn-secondary btn-sm"><i class="fa-solid fa-trash-can"></i> Clear History</button>
+                    </div>
+
+                    <!-- Live Message Log -->
+                    <div class="chat-messages" id="chat-messages-container">
+                        <!-- Welcome message -->
+                        <div class="message system-message">
+                            <div class="message-avatar">
+                                <i class="fa-solid fa-robot"></i>
+                            </div>
+                            <div class="message-content">
+                                <p>Welcome! I am your intelligent customer support agent. I route, classify, analyze, and answer queries in a structured workflow using <strong>LangGraph & Gemini</strong>.</p>
+                                <p>Enter your question below, or select a predefined template to witness the live node execution graph!</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Preset test queries to click -->
+                    <div class="quick-templates">
+                        <span class="template-label">Test Templates:</span>
+                        <button class="template-btn" data-query="Can you help me reset my account password? It keeps saying invalid credentials.">Password Reset (Tech)</button>
+                        <button class="template-btn" data-query="I was charged $49.99 twice on my bill this month. Please issue a refund immediately!">Double Billing (Escalate/Billing)</button>
+                        <button class="template-btn" data-query="What are your delivery options and normal business hours?">Delivery & Hours (General)</button>
+                    </div>
+
+                    <!-- Input Box -->
+                    <div class="chat-input-container">
+                        <textarea id="chat-input" placeholder="Type customer query here... (e.g., 'My screen is blank' or 'I need my bill details')"></textarea>
+                        <button id="send-query-btn" class="btn btn-primary btn-icon"><i class="fa-solid fa-paper-plane"></i></button>
+                    </div>
+                </section>
+
+                <!-- Processing Trace Card (Step by Step Execution Timeline) -->
+                <section class="card trace-card">
+                    <div class="card-header border-bottom">
+                        <i class="fa-solid fa-list-check text-accent"></i>
+                        <h3>LangGraph Execution Trace</h3>
+                    </div>
+                    <div class="trace-timeline" id="timeline-container">
+                        <div class="timeline-empty-state">
+                            <i class="fa-solid fa-wave-square"></i>
+                            <p>Submit a customer query to inspect the step-by-step agent decisions and state changes.</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Historical Analysis Section -->
+            <section class="card history-card">
+                <div class="card-header border-bottom">
+                    <div class="history-header-left">
+                        <i class="fa-solid fa-history text-accent"></i>
+                        <h3>Interaction History & Analysis</h3>
+                    </div>
+                    <div class="history-search-container">
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                        <input type="text" id="history-search" placeholder="Search queries or categories...">
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Customer Query</th>
+                                <th>Category</th>
+                                <th>Sentiment</th>
+                                <th>Support Action/Response</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-table-body">
+                            <!-- Populated dynamically via JS -->
+                            <tr class="empty-row">
+                                <td colspan="5">No interaction history found. Send a message to start!</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Script loading -->
+    <script src="app.js"></script>
+</body>
+</html>

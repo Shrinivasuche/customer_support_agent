@@ -1,0 +1,21 @@
+# Environment variables (contains credentials/API keys)
+.env
+.env.local
+
+# Python virtual environments
+venv/
+.venv/
+env/
+
+# Python caching
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Local history logs database
+backend/history.json
+
+# OS system files
+.DS_Store
+Thumbs.db
